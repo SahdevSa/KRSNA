@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./CRSNA-ICON.png" type="image/x-icon" />
+    <title>
+      CRSNA - Creative Resources of Student Nurturing and Advancement
+    </title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- React & ReactDOM -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: 'Quicksand', sans-serif;
+        background-color: #ffffff;
+        color: black;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: 'Nunito', sans-serif;
+      }
+
+      /* Custom utility for glassmorphism */
+      .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px; /* Offset for sticky header */
+      }
+
+      /* Animation Keyframes */
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .animate-float {
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .animate-float-delayed {
+        animation: float 5s ease-in-out infinite;
+        animation-delay: 2s;
+      }
+
+      @keyframes spin-slow {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .animate-spin-slow {
+        animation: spin-slow 20s linear infinite;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #fff;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* Custom Text Selection */
+      ::selection {
+        background-color: #ffd700;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React
+
+      // --- Utility Components ---
+
+      // FadeIn Animation Component using IntersectionObserver
+      const FadeIn = ({
+        children,
+        delay = 0,
+        direction = 'up',
+        className = ''
+      }) => {
+        const [isVisible, setIsVisible] = useState(false)
+        const domRef = useRef()
+
+        useEffect(() => {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  setIsVisible(true)
+                  observer.unobserve(entry.target)
+                }
+              })
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+          )
+
+          const current = domRef.current
+          if (current) observer.observe(current)
+
+          return () => {
+            if (current) observer.unobserve(current)
+          }
+        }, [])
+
+        const getTransform = () => {
+          if (direction === 'up') return 'translateY(30px)'
+          if (direction === 'down') return 'translateY(-30px)'
+          if (direction === 'left') return 'translateX(30px)'
+          if (direction === 'right') return 'translateX(-30px)'
+          return 'none'
+        }
+
+        return (
+          <div
+            ref={domRef}
+            className={`${className} transition-all duration-1000 ease-out`}
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'none' : getTransform(),
+              transitionDelay: `${delay}ms`
+            }}
+          >
+            {children}
+          </div>
+        )
+      }
+
+      // Section Title Component
+      const SectionTitle = ({ title, subtitle, centered = true }) => (
+        <div className={`mb-12 ${centered ? 'text-center' : 'text-left'}`}>
+          <FadeIn direction='up'>
+            <h2 className='text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight'>
+              {title}
+            </h2>
+          </FadeIn>
+          {subtitle && (
+            <FadeIn direction='up' delay={200}>
+              <p className='text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed'>
+                {subtitle}
+              </p>
+            </FadeIn>
+          )}
+          <FadeIn direction='up' delay={300}>
+            <div
+              className={`h-1.5 w-24 bg-gradient-to-r from-[#1CB5E0] to-[#000851] rounded-full mt-6 ${
+                centered ? 'mx-auto' : ''
+              }`}
+            ></div>
+          </FadeIn>
+        </div>
+      )
+
+      // --- Feature Components ---
+
+      const Navbar = () => {
+        const [scrolled, setScrolled] = useState(false)
+        const [isOpen, setIsOpen] = useState(false)
+
+        useEffect(() => {
+          const handleScroll = () => {
+            setScrolled(window.scrollY > 20)
+          }
+          window.addEventListener('scroll', handleScroll)
+          return () => window.removeEventListener('scroll', handleScroll)
+        }, [])
+
+        const navLinks = [
+          { name: 'Home', href: '#home' },
+          { name: 'About', href: '#about' },
+          { name: 'Activities', href: '#activities' },
+          { name: 'Benefits', href: '#benefits' },
+          { name: 'Gallery', href: '#gallery' }
+        ]
+
+        return (
+          <nav
+            className={`fixed w-full z-50 transition-all duration-300 ${
+              scrolled ? 'glass shadow-sm py-3' : 'bg-transparent py-5'
+            }`}
+          >
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+              <div className='flex justify-between items-center'>
+                <div className='flex items-center'>
+                  <a href='#home' className='flex items-center'>
+                    <img
+                      src='./CRSNA-LOGO_.png'
+                      alt='CRSNA Logo'
+                      className='h-20 w-45 mr-3'
+                    />
+                  </a>
+                </div>
+
+                {/* Desktop Menu */}
+                <div className='hidden md:flex space-x-8 items-center'>
+                  {navLinks.map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      className='text-gray-700 hover:text-[#187fcb] font-bold transition-colors duration-200'
+                    >
+                      {link.name}
+                    </a>
+                  ))}
+                  <a
+                    href='#contact'
+                    className='bg-[#187fcb] hover:bg-[#156cb0] text-white px-6 py-2.5 rounded-full font-bold transition-all transform hover:scale-105 shadow-md'
+                  >
+                    Join Now
+                  </a>
+                </div>
+
+                {/* Mobile menu button */}
+                <div className='md:hidden flex items-center'>
+                  <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className='text-black focus:outline-none'
+                  >
+                    <i
+                      className={`fas ${
+                        isOpen ? 'fa-times' : 'fa-bars'
+                      } text-2xl`}
+                    ></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Menu */}
+            <div
+              className={`md:hidden absolute w-full bg-white shadow-lg transition-all duration-300 ease-in-out ${
+                isOpen
+                  ? 'max-h-96 opacity-100'
+                  : 'max-h-0 opacity-0 overflow-hidden'
+              }`}
+            >
+              <div className='px-4 pt-2 pb-4 space-y-2'>
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className='block px-3 py-2 rounded-md text-base font-medium text-black hover:text-[#187fcb] hover:bg-blue-50'
+                  >
+                    {link.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </nav>
+        )
+      }
+
+      const Hero = () => {
+        // Colors: #ffd700 (Gold), #187fcb (Blue), Black
+        const activityIcons = [
+          {
+            icon: 'fa-palette',
+            color: 'text-[#ffd700]',
+            bg: 'bg-yellow-50 border-yellow-100',
+            position: 'top-0 -left-4 md:-left-12',
+            delay: '0s'
+          },
+          {
+            icon: 'fa-music',
+            color: 'text-[#187fcb]',
+            bg: 'bg-blue-50 border-blue-100',
+            position: 'top-10 -right-4 md:-right-12',
+            delay: '1s'
+          },
+          {
+            icon: 'fa-bolt',
+            color: 'text-black',
+            bg: 'bg-gray-50 border-gray-100',
+            position: 'bottom-20 -left-8 md:-left-16',
+            delay: '2s'
+          },
+          {
+            icon: 'fa-rocket',
+            color: 'text-[#187fcb]',
+            bg: 'bg-blue-50 border-blue-100',
+            position: 'bottom-10 -right-8 md:-right-12',
+            delay: '1.5s'
+          },
+          {
+            icon: 'fa-microphone',
+            color: 'text-[#ffd700]',
+            bg: 'bg-yellow-50 border-yellow-100',
+            position: '-top-12 left-1/2 transform -translate-x-1/2',
+            delay: '3s'
+          }
+        ]
+
+        return (
+          <section
+            id='home'
+            className='relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-gradient-to-br from-[#187fcb]/5 via-white to-[#ffd700]/5'
+          >
+            {/* Abstract Shapes - Updated Colors */}
+            <div className='absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none'>
+              <div className='absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#187fcb] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float'></div>
+              <div className='absolute top-[-10%] right-[-10%] w-96 h-96 bg-[#ffd700] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float-delayed'></div>
+              <div className='absolute bottom-[-10%] left-[20%] w-96 h-96 bg-[#187fcb] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float'></div>
+            </div>
+
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+              <div className='flex flex-col lg:flex-row items-center gap-12 lg:gap-20'>
+                {/* Text Content */}
+                <div className='lg:w-1/2 text-center lg:text-left'>
+                  <FadeIn direction='up'>
+                    <div className='inline-flex items-center px-4 py-2 mb-6 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-[#187fcb]/20'>
+                      <span className='w-2 h-2 rounded-full bg-[#187fcb] mr-2 animate-pulse'></span>
+                      <span className='text-[#187fcb] font-bold text-sm tracking-wide uppercase'>
+                        Admissions Open 2025
+                      </span>
+                    </div>
+                  </FadeIn>
+                  <FadeIn direction='up' delay={200}>
+                    <h1 className='text-5xl lg:text-7xl font-extrabold text-black leading-[1.15] mb-6'>
+                      Where{' '}
+                      <span className='text-transparent bg-clip-text bg-gradient-to-r from-[#1CB5E0] to-[#000851]'>
+                        Creativity
+                      </span>{' '}
+                      <br className='hidden lg:block' /> Takes Flight
+                    </h1>
+                  </FadeIn>
+                  <FadeIn direction='up' delay={400}>
+                    <p className='text-lg text-gray-700 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium'>
+                      CRSNA provides a magical environment for children to
+                      explore Art, Music, Dance, and Innovation. Let's nurture
+                      their hidden talents together.
+                    </p>
+                  </FadeIn>
+                  <FadeIn direction='up' delay={600}>
+                    <div className='flex flex-col sm:flex-row justify-center lg:justify-start gap-4'>
+                      <a
+                        href='#activities'
+                        className='group relative px-8 py-4 bg-black text-white rounded-full font-bold shadow-lg overflow-hidden transition-all hover:shadow-xl hover:scale-105'
+                      >
+                        <div className='absolute inset-0 w-full h-full bg-gradient-to-r from-[#1CB5E0] to-[#000851] opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+                        <span className='relative flex items-center justify-center gap-2'>
+                          Explore Activities{' '}
+                          <i className='fas fa-arrow-right group-hover:translate-x-1 transition-transform'></i>
+                        </span>
+                      </a>
+                      <a
+                        href='https://docs.google.com/forms/d/e/1FAIpQLSfZU5dvUEla2jnzKLvDDIZ8Mx2aU2yAO3RvbFAd8hpJ-gledw/viewform?usp=header'
+                        className='px-8 py-4 bg-white text-[#187fcb] border-2 border-[#187fcb] rounded-full font-bold shadow-sm hover:bg-[#187fcb] hover:text-white transition-all'
+                      >
+                        Resiter Now
+                      </a>
+                    </div>
+                  </FadeIn>
+                </div>
+
+                {/* Hero Image & Floating Logos */}
+                <div className='lg:w-1/2 relative'>
+                  <FadeIn
+                    delay={300}
+                    className='relative z-10 flex justify-center'
+                  >
+                    <div className='relative w-[340px] h-[340px] md:w-[450px] md:h-[450px]'>
+                      {/* Main Circular Image */}
+                      <div className='absolute inset-4 rounded-full overflow-hidden border-[10px] border-white shadow-2xl z-10'>
+                        {/*<img src="https://images.unsplash.com/photo-1623039192667-192f357b1656?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Happy Creative Indian Girl" className="w-full h-full object-cover scale-110 hover:scale-100 transition-transform duration-1000"/>*/}
+                        <img
+                          src='./discChildren.jpeg'
+                          alt='Happy Creative Indian Girl'
+                          className='w-full h-full object-cover scale-110 hover:scale-100 transition-transform duration-1000'
+                        />
+                      </div>
+
+                      {/* Decorative Rings */}
+                      <div className='absolute inset-0 rounded-full border-2 border-dashed border-[#ffd700] animate-spin-slow opacity-60'></div>
+                      <div className='absolute -inset-4 rounded-full border border-white/50'></div>
+
+                      {/* Floating Activity Icons (The "Logos") */}
+                      {activityIcons.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className={`absolute ${item.position} z-20 animate-float`}
+                          style={{ animationDelay: item.delay }}
+                        >
+                          <div
+                            className={`w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center transform rotate-3 hover:rotate-0 transition-all duration-300 hover:scale-110 border ${item.bg}`}
+                          >
+                            <div
+                              className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center ${item.color} bg-opacity-10`}
+                            >
+                              <i
+                                className={`fas ${item.icon} text-xl md:text-2xl`}
+                              ></i>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Experience Badge */}
+                    </div>
+                  </FadeIn>
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      const About = () => {
+        const features = [
+          {
+            icon: 'fa-lightbulb',
+            color: 'bg-yellow-50 text-[#ffd700]',
+            title: 'Creative Thinking',
+            desc: 'Encouraging out-of-the-box ideas.'
+          },
+          {
+            icon: 'fa-users',
+            color: 'bg-blue-50 text-[#187fcb]',
+            title: 'Social Skills',
+            desc: 'Building friendship and teamwork.'
+          },
+          {
+            icon: 'fa-star',
+            color: 'bg-gray-100 text-black',
+            title: 'Confidence',
+            desc: 'Stage exposure and public speaking.'
+          },
+          {
+            icon: 'fa-rocket',
+            color: 'bg-blue-50 text-[#187fcb]',
+            title: 'Future Ready',
+            desc: 'Leadership and entrepreneurship basics.'
+          }
+        ]
+
+        return (
+          <section id='about' className='py-20 bg-white'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+              <div className='flex flex-col md:flex-row gap-12 items-center'>
+                <div className='md:w-1/2'>
+                  <FadeIn direction='right'>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div className='space-y-4 mt-8'>
+                        <img
+                          src='https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+                          className='rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 object-cover border-2 border-white'
+                          alt='Reading'
+                        />
+                        <img
+                          src='https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+                          className='rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full h-64 object-cover border-2 border-white'
+                          alt='Playing'
+                        />
+                      </div>
+                      <div className='space-y-4'>
+                        <img
+                          src='https://images.unsplash.com/photo-1512149177596-f817c7ef5d4c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+                          className='rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full h-64 object-cover border-2 border-white'
+                          alt='Drawing'
+                        />
+                        <img
+                          src='https://images.unsplash.com/photo-1596392927810-7389c25605d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+                          className='rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full h-48 object-cover border-2 border-white'
+                          alt='Laughing'
+                        />
+                      </div>
+                    </div>
+                  </FadeIn>
+                </div>
+                <div className='md:w-1/2'>
+                  <FadeIn direction='left'>
+                    <h4 className='text-[#187fcb] font-bold uppercase tracking-wider mb-2'>
+                      About CRSNA
+                    </h4>
+                    <h2 className='text-4xl font-extrabold text-black mb-6'>
+                      Where Creativity Meets <br />
+                      <span className='text-[#ffd700]'>Growth & Fun</span>
+                    </h2>
+                    <p className='text-gray-700 text-lg mb-8 leading-relaxed font-medium'>
+                      CRSNA (Creative Resources of Student Nurturing and
+                      Advancement) is dedicated to discovering and polishing the
+                      hidden talents in every child. We believe that true
+                      education goes beyond textbooks—it involves art,
+                      expression, movement, and leadership.
+                    </p>
+
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
+                      {features.map((feature, idx) => (
+                        <div
+                          key={idx}
+                          className='flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100'
+                        >
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${feature.color}`}
+                          >
+                            <i className={`fas ${feature.icon} text-lg`}></i>
+                          </div>
+                          <div>
+                            <h5 className='font-bold text-black text-lg'>
+                              {feature.title}
+                            </h5>
+                            <p className='text-sm text-gray-500'>
+                              {feature.desc}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </FadeIn>
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      const ActivityCard = ({
+        title,
+        desc,
+        icon,
+        iconColorClass,
+        overlayColorClass,
+        image,
+        delay
+      }) => (
+        <FadeIn direction='up' delay={delay} className='group h-full'>
+          <div className='bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-full flex flex-col'>
+            <div className='h-48 overflow-hidden relative'>
+              <div
+                className={`absolute inset-0 ${overlayColorClass} opacity-0 group-hover:opacity-30 transition-opacity z-10`}
+              ></div>
+              <img
+                src={image}
+                alt={title}
+                className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+              />
+              <div className='absolute top-4 right-4 bg-white p-2 rounded-full shadow-md z-20'>
+                <i
+                  className={`fas ${icon} ${iconColorClass} text-xl w-8 h-8 flex items-center justify-center`}
+                ></i>
+              </div>
+            </div>
+            <div className='p-8 flex-grow flex flex-col'>
+              <h3 className='text-2xl font-bold text-black mb-3 group-hover:text-[#187fcb] transition-colors'>
+                {title}
+              </h3>
+              <p className='text-gray-600 mb-6 flex-grow'>{desc}</p>
+              <a
+                href='#contact'
+                className='inline-flex items-center text-[#187fcb] font-bold hover:text-[#0f5282] transition-colors mt-auto'
+              >
+                Learn More{' '}
+                <i className='fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform'></i>
+              </a>
+            </div>
+          </div>
+        </FadeIn>
+      )
+
+      const Activities = () => {
+        const [activeGroup, setActiveGroup] = useState('juniors')
+
+        const juniors = [
+          {
+            title: 'Mini Innovators',
+            desc: 'Create amazing art and useful crafts using waste materials. Eco-friendly creativity!',
+            icon: 'fa-recycle',
+            iconColorClass: 'text-[#ffd700]',
+            overlayColorClass: 'bg-[#ffd700]',
+            image:
+              'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 0
+          },
+          {
+            title: 'Flash 20',
+            desc: 'A high-speed mental challenge to boost cognitive reflexes and quick thinking.',
+            icon: 'fa-bolt',
+            iconColorClass: 'text-[#187fcb]',
+            overlayColorClass: 'bg-[#187fcb]',
+            image:
+              'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 150
+          },
+          {
+            title: 'Clay Modeling',
+            desc: 'Mold your imagination into 3D structures. Excellent for fine motor skills.',
+            icon: 'fa-shapes',
+            iconColorClass: 'text-[#b45309]',
+            overlayColorClass: 'bg-yellow-600',
+            image:
+              'https://images.unsplash.com/photo-1516934557991-3f4112e3dc79?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 300
+          },
+          {
+            title: 'Origami',
+            desc: 'The Japanese art of paper folding. Teaches patience, precision, and geometry.',
+            icon: 'fa-paper-plane',
+            iconColorClass: 'text-[#187fcb]',
+            overlayColorClass: 'bg-[#187fcb]',
+            image:
+              'https://images.unsplash.com/photo-1535572290543-960a8046f5af?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 450
+          },
+          {
+            title: 'Science Experiment',
+            desc: 'Fun, hands-on experiments to understand the magic of science around us.',
+            icon: 'fa-flask',
+            iconColorClass: 'text-[#ffd700]',
+            overlayColorClass: 'bg-[#ffd700]',
+            image:
+              'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 600
+          }
+        ]
+
+        const seniors = [
+          {
+            title: 'Scratch Programming',
+            desc: 'Introduction to coding logic and game creation using visual blocks.',
+            icon: 'fa-code',
+            iconColorClass: 'text-[#187fcb]',
+            overlayColorClass: 'bg-[#187fcb]',
+            image:
+              'https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 0
+          },
+          {
+            title: 'Photography',
+            desc: 'Mastering the lens to capture moments, lighting, and composition beautifully.',
+            icon: 'fa-camera',
+            iconColorClass: 'text-black',
+            overlayColorClass: 'bg-black',
+            image:
+              'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 150
+          },
+          {
+            title: 'Robots from Waste',
+            desc: 'Engineering meets sustainability. Build functional bots from recycled parts.',
+            icon: 'fa-robot',
+            iconColorClass: 'text-[#ffd700]',
+            overlayColorClass: 'bg-[#ffd700]',
+            image:
+              'https://images.unsplash.com/photo-1561557944-6e7860d1a6eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 300
+          },
+          {
+            title: 'Short Film Making',
+            desc: 'Scripting, directing, and editing your own stories. Lights, camera, action!',
+            icon: 'fa-video',
+            iconColorClass: 'text-[#187fcb]',
+            overlayColorClass: 'bg-[#187fcb]',
+            image:
+              'https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            delay: 450
+          }
+        ]
+
+        const currentActivities = activeGroup === 'juniors' ? juniors : seniors
+
+        return (
+          <section id='activities' className='py-20 bg-gray-50'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+              <SectionTitle
+                title='Our Competitions'
+                subtitle='Exciting challenges designed to spark creativity and innovation at every age.'
+              />
+
+              {/* Tab Toggle */}
+              <FadeIn direction='up'>
+                <div className='flex justify-center mb-12'>
+                  <div className='bg-white p-1.5 rounded-full shadow-md border border-gray-100 inline-flex'>
+                    <button
+                      onClick={() => setActiveGroup('juniors')}
+                      className={`px-8 py-3 rounded-full text-lg font-bold transition-all duration-300 ${
+                        activeGroup === 'juniors'
+                          ? 'bg-[#ffd700] text-black shadow-sm'
+                          : 'text-gray-500 hover:text-black'
+                      }`}
+                    >
+                      Juniors (Class 1-5)
+                    </button>
+                    <button
+                      onClick={() => setActiveGroup('seniors')}
+                      className={`px-8 py-3 rounded-full text-lg font-bold transition-all duration-300 ${
+                        activeGroup === 'seniors'
+                          ? 'bg-[#187fcb] text-white shadow-sm'
+                          : 'text-gray-500 hover:text-black'
+                      }`}
+                    >
+                      Seniors (Class 6-9)
+                    </button>
+                  </div>
+                </div>
+              </FadeIn>
+
+              {/* Activities Grid */}
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 min-h-[500px]'>
+                {currentActivities.map((act, idx) => (
+                  <ActivityCard key={`${activeGroup}-${idx}`} {...act} />
+                ))}
+              </div>
+
+              <FadeIn direction='up' delay={600} className='mt-16 text-center'>
+                <p className='text-gray-600 mb-6'>
+                  Want to participate in these exciting competitions?
+                </p>
+                <a href='https://docs.google.com/forms/d/e/1FAIpQLSfZU5dvUEla2jnzKLvDDIZ8Mx2aU2yAO3RvbFAd8hpJ-gledw/viewform?usp=header'>
+                  <button className='px-8 py-3 bg-white border-2 border-[#187fcb] text-[#187fcb] rounded-full font-bold hover:bg-[#187fcb] hover:text-white transition-all shadow-sm'>
+                    Register Now
+                  </button>
+                </a>
+              </FadeIn>
+            </div>
+          </section>
+        )
+      }
+
+      const WhyChooseUs = () => {
+        const benefits = [
+          'Experienced & Caring Mentors',
+          'Safe & Supportive Environment',
+          'Holistic Skill Development',
+          'Regular Competitions & Events',
+          'Focus on Individual Growth',
+          'State-of-the-Art Facilities'
+        ]
+
+        return (
+          <section id='benefits' className='py-20 bg-white overflow-hidden'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+              <div className='flex flex-col lg:flex-row items-center gap-16'>
+                <div className='lg:w-1/2 relative'>
+                  <FadeIn direction='right'>
+                    <div className='relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white'>
+                      <img
+                        src='https://images.unsplash.com/photo-1529070538774-1843cb3265df?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+                        alt='Happy Children'
+                        className='w-full h-full object-cover'
+                      />
+                      <div className='absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8'>
+                        <div className='text-white'>
+                          <p className='text-3xl font-bold text-[#ffd700]'>
+                            1000+
+                          </p>
+                          <p className='text-sm opacity-90 font-medium'>
+                            Happy Students Nurtured
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Decorative circle */}
+                    <div className='absolute -z-10 -top-10 -left-10 w-64 h-64 bg-[#ffd700] rounded-full mix-blend-multiply filter blur-3xl opacity-20'></div>
+                    <div className='absolute -z-10 -bottom-10 -right-10 w-64 h-64 bg-[#187fcb] rounded-full mix-blend-multiply filter blur-3xl opacity-20'></div>
+                  </FadeIn>
+                </div>
+
+                <div className='lg:w-1/2'>
+                  <SectionTitle
+                    title='Why Choose CRSNA?'
+                    subtitle="We are more than just an activity center. We are a family dedicated to your child's success."
+                    centered={false}
+                  />
+
+                  <div className='grid grid-cols-1 gap-4 mt-8'>
+                    {benefits.map((item, idx) => (
+                      <FadeIn key={idx} direction='up' delay={idx * 100}>
+                        <div className='flex items-center p-4 bg-gray-50 rounded-xl hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-[#187fcb]/30'>
+                          <div className='w-8 h-8 rounded-full bg-[#187fcb]/10 text-[#187fcb] flex items-center justify-center mr-4 shrink-0'>
+                            <i className='fas fa-check text-sm'></i>
+                          </div>
+                          <span className='text-lg font-bold text-gray-800'>
+                            {item}
+                          </span>
+                        </div>
+                      </FadeIn>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      const Gallery = () => {
+        const images = [
+          'https://images.unsplash.com/photo-1524069290636-e95ea635b56c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1519098901909-b1553a1190af?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1596392927810-7389c25605d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1519069060855-6b801a24d204?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+        ]
+
+        return (
+          <section id='gallery' className='py-20 bg-gray-50'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+              <SectionTitle
+                title='Joyful Moments'
+                subtitle='A glimpse into the fun and learning at CRSNA.'
+              />
+
+              <div className='grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[200px] grid-flow-dense'>
+                {images.map((src, idx) => (
+                  <FadeIn
+                    key={idx}
+                    direction='up'
+                    delay={idx * 50}
+                    className={`relative overflow-hidden rounded-xl group ${
+                      idx === 0 || idx === 3 ? 'col-span-2' : ''
+                    } ${idx === 4 ? 'row-span-2 h-full' : ''}`}
+                  >
+                    <img
+                      src={src}
+                      alt='Gallery'
+                      className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+                    />
+                    <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
+                      <i className='fas fa-heart text-[#ffd700] text-3xl animate-bounce'></i>
+                    </div>
+                  </FadeIn>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      const CTA = () => {
+        return (
+          <section
+            id='contact'
+            className='py-24 relative overflow-hidden bg-gradient-to-br from-[#187fcb]/5 via-white to-[#ffd700]/5'
+          >
+            {/* Decorative Background Elements similar to Hero */}
+            <div className='absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none'>
+              <div className='absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#187fcb] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float'></div>
+              <div className='absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#ffd700] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float-delayed'></div>
+            </div>
+
+            <div className='max-w-4xl mx-auto px-4 text-center relative z-10'>
+              <FadeIn direction='up'>
+                <h2 className='text-4xl md:text-5xl font-extrabold text-black mb-6'>
+                  Ready to Join the Family?
+                </h2>
+                <p className='text-xl text-gray-700 mb-10 max-w-2xl mx-auto'>
+                  Enrollment is open! Give your child the gift of creativity and
+                  confidence. Contact us today for a free trial class.
+                </p>
+                <div className='flex flex-col sm:flex-row justify-center gap-4'>
+                  <button className='px-10 py-4 bg-black text-white font-bold rounded-full text-lg shadow-lg hover:shadow-2xl hover:bg-[#187fcb] transform hover:-translate-y-1 transition-all'>
+                    Contact Us
+                  </button>
+                  <button className='px-10 py-4 bg-transparent border-2 border-black text-black font-bold rounded-full text-lg hover:bg-black/5 transition-all'>
+                    Download Brochure
+                  </button>
+                </div>
+              </FadeIn>
+            </div>
+          </section>
+        )
+      }
+
+      const Footer = () => {
+        return (
+          <footer className='bg-[#ffd700] text-black py-12'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+              <div className='grid grid-cols-1 md:grid-cols-4 gap-12'>
+                <div className='col-span-1 md:col-span-2'>
+                  <a
+                    href='#'
+                    className='text-3xl font-extrabold text-black tracking-wider mb-4 block'
+                  >
+                    <span className='text-white'>C</span>RSNA
+                  </a>
+                  <p className='text-gray-800 mb-6 max-w-sm font-medium'>
+                    Creative Resources of Student Nurturing and Advancement.
+                    Dedicated to building a brighter, more creative future for
+                    every child.
+                  </p>
+                  <div className='flex space-x-4'>
+                    <a
+                      href='#'
+                      className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-white hover:text-[#187fcb] transition-colors'
+                    >
+                      <i className='fab fa-facebook-f'></i>
+                    </a>
+                    <a
+                      href='#'
+                      className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-white hover:text-[#ffd700] transition-colors'
+                    >
+                      <i className='fab fa-instagram'></i>
+                    </a>
+                    <a
+                      href='#'
+                      className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-white hover:text-[#187fcb] transition-colors'
+                    >
+                      <i className='fab fa-twitter'></i>
+                    </a>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className='text-black font-extrabold text-lg mb-4'>
+                    Quick Links
+                  </h4>
+                  <ul className='space-y-2 font-medium'>
+                    <li>
+                      <a
+                        href='#home'
+                        className='hover:text-white transition-colors'
+                      >
+                        Home
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href='#about'
+                        className='hover:text-white transition-colors'
+                      >
+                        About Us
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href='#activities'
+                        className='hover:text-white transition-colors'
+                      >
+                        Activities
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href='#gallery'
+                        className='hover:text-white transition-colors'
+                      >
+                        Gallery
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className='text-black font-extrabold text-lg mb-4'>
+                    Contact
+                  </h4>
+                  <ul className='space-y-3 font-medium'>
+                    <li className='flex items-start'>
+                      <i className='fas fa-map-marker-alt mt-1.5 mr-3 text-black'></i>
+                      <span>
+                        123 Creative Avenue, <br />
+                        Student City, ST 45678
+                      </span>
+                    </li>
+                    <li className='flex items-center'>
+                      <i className='fas fa-phone-alt mr-3 text-black'></i>
+                      <span>+1 (555) 123-4567</span>
+                    </li>
+                    <li className='flex items-center'>
+                      <i className='fas fa-envelope mr-3 text-black'></i>
+                      <span>hello@crsna.org</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className='border-t border-black/10 mt-12 pt-8 text-center text-sm text-gray-800 font-medium'>
+                &copy; {new Date().getFullYear()} CRSNA. All rights reserved.
+                Designed with <i className='fas fa-heart text-white'></i>
+              </div>
+            </div>
+          </footer>
+        )
+      }
+
+      const App = () => {
+        return (
+          <div className='min-h-screen'>
+            <Navbar />
+            <Hero />
+            <About />
+            <Activities />
+            <WhyChooseUs />
+            <Gallery />
+            <CTA />
+            <Footer />
+          </div>
+        )
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'))
+      root.render(<App />)
+    </script>
+  </body>
+</html>
